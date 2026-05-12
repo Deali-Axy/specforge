@@ -40,3 +40,8 @@ tasks:
     desc: 安装到 GOPATH/bin
     cmds:
       - go install .
+
+  uninstall:
+    desc: 从 GOPATH/bin 删除
+    cmds:
+      - rm -f "$(go env GOPATH)/bin/{{.BINARY}}{{exeExt}}"
