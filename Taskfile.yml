@@ -1,0 +1,42 @@
+# https://taskfile.dev
+version: "3"
+
+vars:
+  BINARY: specforge
+  LDFLAGS: "-s -w"
+
+tasks:
+  default:
+    desc: 构建当前平台
+    cmds:
+      - go build -ldflags="{{.LDFLAGS}}" -o dist/{{.BINARY}}{{exeExt}} .
+
+  build:
+    desc: 构建当前平台
+    cmds:
+      - go build -ldflags="{{.LDFLAGS}}" -o dist/{{.BINARY}}{{exeExt}} .
+
+  build-all:
+    desc: 交叉编译所有平台
+    cmds:
+      - task: _build-target
+        vars: { GOOS: windows, GOARCH: amd64, SUFFIX: ".exe" }
+      - task: _build-target
+        vars: { GOOS: linux, GOARCH: amd64, SUFFIX: "" }
+      - task: _build-target
+        vars: { GOOS: darwin, GOARCH: arm64, SUFFIX: "" }
+      - task: _build-target
+        vars: { GOOS: darwin, GOARCH: amd64, SUFFIX: "" }
+
+  _build-target:
+    internal: true
+    env:
+      GOOS: "{{.GOOS}}"
+      GOARCH: "{{.GOARCH}}"
+    cmds:
+      - go build -ldflags="{{.LDFLAGS}}" -o dist/{{.BINARY}}-{{.GOOS}}-{{.GOARCH}}{{.SUFFIX}} .
+
+  install:
+    desc: 安装到 GOPATH/bin
+    cmds:
+      - go install .
