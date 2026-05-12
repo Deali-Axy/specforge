@@ -2,24 +2,24 @@
 
 为新项目一键生成完整的文档规格体系。
 
-基于 [iugam-memex](https://github.com/dealiAxy/iugam-memex) 项目的实践经验，提取出可复用的文档模板，覆盖产品设计、技术架构、API 契约、前端规范、测试策略等维度，配合 AI 辅助开发方法论，让项目从第一天就有清晰的规格骨架。
+基于 iugam-memex 项目的实践经验，提取出可复用的文档模板，覆盖产品设计、技术架构、API 契约、前端规范、测试策略等维度，配合 AI 辅助开发方法论，让项目从第一天就有清晰的规格骨架。
 
 ## 安装
 
 ### 从 Release 下载
 
-从 [GitHub Release](https://github.com/dealiAxy/specforge/releases) 下载对应平台的二进制文件。
+从 [GitHub Release](https://github.com/Deali-Axy/specforge/releases) 下载对应平台的二进制文件。
 
 ### 从源码安装
 
 ```bash
-go install github.com/dealiAxy/specforge@latest
+go install github.com/Deali-Axy/specforge@latest
 ```
 
 ### 从源码构建
 
 ```bash
-git clone https://github.com/dealiAxy/specforge.git
+git clone https://github.com/Deali-Axy/specforge.git
 cd specforge
 task build          # 构建当前平台
 task build-all      # 交叉编译所有平台
