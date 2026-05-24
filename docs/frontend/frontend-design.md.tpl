@@ -1,6 +1,6 @@
 ---
 title: "前端开发规范"
-type: guide
+type: reference
 status: planning
 date: {{DATE}}
 tags:

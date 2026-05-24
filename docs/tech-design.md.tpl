@@ -97,6 +97,8 @@ description: |
 
 <!-- GUIDE: 链接到其他详细设计文档 -->
 
-- [API 合约设计](./api-contract-design.md)
-- [前端开发规范](./frontend-design.md)
-- [Monorepo 配置指南](./monorepo-config.md)
+- [文档体系设计](./documentation-design.md)
+- [工程文档索引](./engineering/README.md)
+- [前端文档索引](./frontend/README.md)
+
+{{TECH_DETAIL_DOCS}}

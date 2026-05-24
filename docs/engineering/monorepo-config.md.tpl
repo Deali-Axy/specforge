@@ -15,7 +15,7 @@ description: |
 
 <!-- GUIDE: 如果你的项目使用 monorepo，本文档是 workspace 配置的权威参考。 -->
 
-本文档只管 workspace 配置，不重复技术架构。模块职责和依赖边界见 [`tech-design.md`](./tech-design.md)。
+本文档只管 workspace 配置，不重复技术架构。模块职责和依赖边界见 [`tech-design.md`](../tech-design.md)。
 
 ## 1. Workspace 命名
 

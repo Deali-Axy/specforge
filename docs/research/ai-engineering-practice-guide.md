@@ -109,11 +109,18 @@ CLAUDE.md（≤100行，仅作导航地图）
 docs/
 ├── README.md            ← 文档总目录（供 AI 导航）
 ├── CONVENTIONS.md       ← 文档治理规范
+├── documentation-design.md ← 文档体系设计（定义 docs 分层）
 ├── product-design.md    ← 产品设计（= SDD Specify 产物）
 ├── tech-design.md       ← 技术设计（= SDD Plan 基础）
+├── engineering/         ← API / 测试 / Monorepo 工程契约
+├── frontend/            ← 前端契约
 ├── phase/               ← Phase 规格 + 执行计划
 │   ├── phase1-xxx.md
 │   └── phase2-xxx.md
+├── changes/             ← 局部变更计划（一等公民）
+│   ├── active/
+│   └── completed/
+├── adr/                 ← 架构决策记录（长期规则）
 └── research/            ← 调研文档
 ```
 
@@ -129,7 +136,20 @@ docs/
 
 > **判断标准**：如果 AI 在开始任何任务时都需要这条信息 → 放 CLAUDE.md。如果只在特定任务时需要 → 放对应的 docs/ 文档并在 CLAUDE.md 中添加链接。
 
-### 2.3 Phase 文档 = 执行计划（Execution Plans）
+### 2.3 文档分层 = 不同粒度的计划制品
+
+在 SDD + Harness 组合下，计划不是只有一种粒度：
+
+1. `phase/`：主线阶段的执行计划
+2. `changes/`：局部优化、机制调整、受限重构的执行计划
+3. `adr/`：已经稳定下来的长期决策
+
+这能避免两个反模式：
+
+1. 所有变化都挤进 Phase 文档，导致主线规格膨胀
+2. 局部优化没有归档位置，只能散落在聊天记录里
+
+### 2.4 Phase 文档 = 执行计划（Execution Plans）
 
 每个 Phase 文档同时承担 SDD 规格 + Harness 执行计划的双重职责：
 

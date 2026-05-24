@@ -2,7 +2,7 @@
 
 为新项目一键生成完整的文档规格体系。
 
-基于 iugam-memex 项目的实践经验，提取出可复用的文档模板，覆盖产品设计、技术架构、API 契约、前端规范、测试策略等维度，配合 AI 辅助开发方法论，让项目从第一天就有清晰的规格骨架。
+基于 iugam-memex 项目的实践经验，提取出可复用的文档模板，覆盖产品设计、技术架构、文档治理、Change Plans、ADR、API 契约、前端规范、测试策略等维度，配合 AI 辅助开发方法论，让项目从第一天就有清晰的规格骨架。
 
 ## 安装
 
@@ -33,22 +33,33 @@ task build-all      # 交叉编译所有平台
 specforge
 ```
 
-交互式填写项目信息和技术栈，工具会自动生成 `docs/` 目录结构：
+交互式填写项目信息和技术栈，工具会自动生成分层后的 `docs/` 目录结构：
 
 ```
 docs/
-├── README.md              ← 导航索引
-├── CONVENTIONS.md         ← 文档规范
-├── product-design.md      ← 产品设计
-├── tech-design.md         ← 技术架构
-├── api-contract-design.md ← API 合约（可选）
-├── frontend-design.md     ← 前端规范（可选）
-├── monorepo-config.md     ← Monorepo 配置（可选）
-├── testing-strategy.md    ← 测试策略（可选）
+├── README.md                     ← 顶层导航索引
+├── CONVENTIONS.md                ← 文档规范
+├── documentation-design.md       ← 文档体系设计
+├── product-design.md             ← 产品设计
+├── tech-design.md                ← 技术架构
+├── frontend/
+│   ├── README.md                 ← 前端文档索引
+│   └── frontend-design.md        ← 前端规范（可选）
+├── engineering/
+│   ├── README.md                 ← 工程文档索引
+│   ├── api-contract-design.md    ← API 合约（可选）
+│   ├── monorepo-config.md        ← Monorepo 配置（可选）
+│   └── testing.md                ← 测试策略（可选）
 ├── phase/
-│   └── phase1-xxx.md      ← 阶段规格
+│   └── phase1-xxx.md             ← 阶段规格
+├── changes/
+│   ├── README.md                 ← 局部变更计划索引
+│   ├── active/
+│   └── completed/
+├── adr/
+│   └── README.md                 ← ADR 索引
 └── research/
-    └── ai-engineering-practice-guide.md  ← AI 工程方法论
+  └── ai-engineering-practice-guide.md  ← AI 工程方法论（可选）
 ```
 
 指定输出目录：
@@ -93,17 +104,22 @@ Phase 1 简述: 骨架搭建
 |------|------|
 | `CONVENTIONS.md` | 文档命名规则与 YAML frontmatter 规范 |
 | `README.md` | 文档导航索引，AI 和团队的入口 |
+| `documentation-design.md` | docs 分层原则、目录职责与收纳规则 |
 | `product-design.md` | 产品设计：问题→定位→能力→领域模型→原则 |
 | `tech-design.md` | 技术架构：选型→模块职责→架构边界 |
+| `changes/README.md` | Change Plans 的使用规则与索引入口 |
+| `adr/README.md` | ADR 的职责、命名方式与索引入口 |
+| `frontend/README.md` | 前端关注域入口 |
+| `engineering/README.md` | 工程关注域入口 |
 
 ### 可选模板（按项目需要选择）
 
 | 文件 | 说明 | 何时需要 |
 |------|------|----------|
-| `frontend-design.md` | 前端开发契约 | 有前端应用时 |
-| `api-contract-design.md` | API 合约设计 | 有前后端分离 API 时 |
-| `monorepo-config.md` | Monorepo 配置指南 | 使用 monorepo 时 |
-| `testing-strategy.md` | 测试策略 | 需要测试规范时 |
+| `frontend/frontend-design.md` | 前端开发契约 | 有前端应用时 |
+| `engineering/api-contract-design.md` | API 合约设计 | 有前后端分离 API 时 |
+| `engineering/monorepo-config.md` | Monorepo 配置指南 | 使用 monorepo 时 |
+| `engineering/testing.md` | 测试策略 | 需要测试规范时 |
 | `phase/phase-template.md` | 阶段规格模板 | 按 Phase 规划开发时 |
 
 ### 方法论文档（直接复用）
@@ -118,14 +134,15 @@ Phase 1 简述: 骨架搭建
 docs/
 ├── README.md              ← 入口：导航索引 + 阅读顺序
 ├── CONVENTIONS.md         ← 规范：文档治理规则
+├── documentation-design.md ← 规则：docs 为什么这样分层
 ├── product-design.md      ← 灵魂：产品是什么、为什么做
 ├── tech-design.md         ← 骨架：技术怎么选、模块怎么分
-├── api-contract-design.md ← 契约：API 怎么定义、怎么调用
-├── frontend-design.md     ← 规则：前端代码放哪里、边界怎么守
-├── monorepo-config.md     ← 配置：workspace 怎么组织
-├── testing-strategy.md    ← 质量：测试怎么写、怎么跑
+├── frontend/              ← 前端关注域入口
+├── engineering/           ← API / 测试 / Monorepo 关注域入口
 ├── phase/                 ← 执行：每个阶段要做什么
 │   └── phase1-xxx.md
+├── changes/               ← 局部变更计划
+├── adr/                   ← 长期架构决策
 └── research/              ← 方法论：怎么用 AI 辅助开发
     └── ai-engineering-practice-guide.md
 ```
