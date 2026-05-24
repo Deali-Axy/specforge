@@ -186,6 +186,18 @@ func generateTemplate(src, dst string, replacements map[string]string) error {
 	return nil
 }
 
+// joinNonEmptyLines 将非空文本按换行拼接，便于生成可选文档索引片段。
+func joinNonEmptyLines(lines ...string) string {
+	parts := make([]string, 0, len(lines))
+	for _, line := range lines {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		parts = append(parts, line)
+	}
+	return strings.Join(parts, "\n")
+}
+
 // ── 主流程 ────────────────────────────────────────────────────────────────────
 
 func main() {
@@ -326,6 +338,28 @@ func main() {
 		"PHASE_DESCRIPTION":  phase1Desc,
 		"PHASE_GOAL":         phase1Desc,
 		"SCOPE":              scopeVal,
+		"TECH_DETAIL_DOCS": joinNonEmptyLines(
+			"- [前端文档索引](./frontend/README.md)",
+			"- [工程文档索引](./engineering/README.md)",
+			func() string {
+				if !includeApi {
+					return ""
+				}
+				return "- [API 合约设计](./engineering/api-contract-design.md)"
+			}(),
+			func() string {
+				if !includeMonorepo {
+					return ""
+				}
+				return "- [Monorepo 配置指南](./engineering/monorepo-config.md)"
+			}(),
+			func() string {
+				if !includeTesting {
+					return ""
+				}
+				return "- [测试策略](./engineering/testing.md)"
+			}(),
+		),
 	}
 
 	// ── 生成文档 ──────────────────────────────────────────────────────────────
@@ -337,8 +371,11 @@ func main() {
 	coreTemplates := []templateEntry{
 		{"docs/CONVENTIONS.md.tpl", "docs/CONVENTIONS.md"},
 		{"docs/README.md.tpl", "docs/README.md"},
+		{"docs/documentation-design.md.tpl", "docs/documentation-design.md"},
 		{"docs/product-design.md.tpl", "docs/product-design.md"},
 		{"docs/tech-design.md.tpl", "docs/tech-design.md"},
+		{"docs/changes/README.md.tpl", "docs/changes/README.md"},
+		{"docs/adr/README.md.tpl", "docs/adr/README.md"},
 	}
 
 	for _, t := range coreTemplates {
@@ -348,18 +385,49 @@ func main() {
 		}
 	}
 
+	changesActiveDir := filepath.Join(*outputDir, "docs", "changes", "active")
+	if err := os.MkdirAll(changesActiveDir, 0o755); err != nil {
+		fmt.Println(color("错误: "+err.Error(), red))
+		os.Exit(1)
+	}
+	changesCompletedDir := filepath.Join(*outputDir, "docs", "changes", "completed")
+	if err := os.MkdirAll(changesCompletedDir, 0o755); err != nil {
+		fmt.Println(color("错误: "+err.Error(), red))
+		os.Exit(1)
+	}
+
 	// 可选模板
+	if err := generateTemplate("docs/frontend/README.md.tpl", filepath.Join(*outputDir, "docs/frontend/README.md"), replacements); err != nil {
+		fmt.Println(color("错误: "+err.Error(), red))
+		os.Exit(1)
+	}
+	if err := generateTemplate("docs/engineering/README.md.tpl", filepath.Join(*outputDir, "docs/engineering/README.md"), replacements); err != nil {
+		fmt.Println(color("错误: "+err.Error(), red))
+		os.Exit(1)
+	}
 	if includeFrontend {
-		generateTemplate("docs/frontend-design.md.tpl", filepath.Join(*outputDir, "docs/frontend-design.md"), replacements)
+		if err := generateTemplate("docs/frontend/frontend-design.md.tpl", filepath.Join(*outputDir, "docs/frontend/frontend-design.md"), replacements); err != nil {
+			fmt.Println(color("错误: "+err.Error(), red))
+			os.Exit(1)
+		}
 	}
 	if includeApi {
-		generateTemplate("docs/api-contract-design.md.tpl", filepath.Join(*outputDir, "docs/api-contract-design.md"), replacements)
+		if err := generateTemplate("docs/engineering/api-contract-design.md.tpl", filepath.Join(*outputDir, "docs/engineering/api-contract-design.md"), replacements); err != nil {
+			fmt.Println(color("错误: "+err.Error(), red))
+			os.Exit(1)
+		}
 	}
 	if includeMonorepo {
-		generateTemplate("docs/monorepo-config.md.tpl", filepath.Join(*outputDir, "docs/monorepo-config.md"), replacements)
+		if err := generateTemplate("docs/engineering/monorepo-config.md.tpl", filepath.Join(*outputDir, "docs/engineering/monorepo-config.md"), replacements); err != nil {
+			fmt.Println(color("错误: "+err.Error(), red))
+			os.Exit(1)
+		}
 	}
 	if includeTesting {
-		generateTemplate("docs/testing-strategy.md.tpl", filepath.Join(*outputDir, "docs/testing-strategy.md"), replacements)
+		if err := generateTemplate("docs/engineering/testing.md.tpl", filepath.Join(*outputDir, "docs/engineering/testing.md"), replacements); err != nil {
+			fmt.Println(color("错误: "+err.Error(), red))
+			os.Exit(1)
+		}
 	}
 
 	// Phase 模板
@@ -368,11 +436,14 @@ func main() {
 
 	// 方法论文档
 	if includeMethodology {
-		generateTemplate(
+		if err := generateTemplate(
 			"docs/research/ai-engineering-practice-guide.md",
 			filepath.Join(*outputDir, "docs/research/ai-engineering-practice-guide.md"),
 			replacements,
-		)
+		); err != nil {
+			fmt.Println(color("错误: "+err.Error(), red))
+			os.Exit(1)
+		}
 	}
 
 	// ── 输出摘要 ──────────────────────────────────────────────────────────────
@@ -388,19 +459,24 @@ func main() {
 	fmt.Println(color("  生成的文档：", white))
 	fmt.Println(color("    docs/README.md              (导航索引)", gray))
 	fmt.Println(color("    docs/CONVENTIONS.md         (文档规范)", gray))
+	fmt.Println(color("    docs/documentation-design.md (文档体系设计)", gray))
 	fmt.Println(color("    docs/product-design.md      (产品设计)", gray))
 	fmt.Println(color("    docs/tech-design.md         (技术架构)", gray))
+	fmt.Println(color("    docs/changes/README.md      (变更计划索引)", gray))
+	fmt.Println(color("    docs/adr/README.md          (架构决策索引)", gray))
+	fmt.Println(color("    docs/frontend/README.md     (前端文档索引)", gray))
+	fmt.Println(color("    docs/engineering/README.md  (工程文档索引)", gray))
 	if includeFrontend {
-		fmt.Println(color("    docs/frontend-design.md     (前端规范)", gray))
+		fmt.Println(color("    docs/frontend/frontend-design.md (前端规范)", gray))
 	}
 	if includeApi {
-		fmt.Println(color("    docs/api-contract-design.md (API 合约)", gray))
+		fmt.Println(color("    docs/engineering/api-contract-design.md (API 合约)", gray))
 	}
 	if includeMonorepo {
-		fmt.Println(color("    docs/monorepo-config.md     (Monorepo 配置)", gray))
+		fmt.Println(color("    docs/engineering/monorepo-config.md (Monorepo 配置)", gray))
 	}
 	if includeTesting {
-		fmt.Println(color("    docs/testing-strategy.md    (测试策略)", gray))
+		fmt.Println(color("    docs/engineering/testing.md (测试策略)", gray))
 	}
 	fmt.Println(color("    docs/phase/phase1-"+phase1Keyword+".md   (Phase 1 规格)", gray))
 	if includeMethodology {
