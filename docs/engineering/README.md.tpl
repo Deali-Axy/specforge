@@ -23,4 +23,5 @@ description: |
 
 1. 改 HTTP API：读 `api-contract-design.md`
 2. 改测试：读 `testing.md`
-3. 改 workspace 或构建配置：读 `monorepo-config.md`
+3. 如果是前端测试方案：再读 `../frontend/frontend-testing-plan.md`
+4. 改 workspace 或构建配置：读 `monorepo-config.md`

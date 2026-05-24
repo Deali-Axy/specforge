@@ -40,3 +40,7 @@ ADR（Architecture Decision Record）用于记录已经生效的长期决策。
 1. ADR 一旦生效，应保持稳定，只在必要时新增后续 ADR 修正。
 2. 不要把临时讨论记录直接当 ADR。
 3. 若 Phase 或 Change Plan 里出现长期规则，应提炼到 ADR。
+
+## 当前示例
+
+- [ADR 0001 · 文档分层规则](./adr-0001-docs-layering.md)

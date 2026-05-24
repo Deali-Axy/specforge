@@ -16,8 +16,10 @@ description: |
 | 文档 | 定位 | 什么时候读 |
 |------|------|------------|
 | [frontend-design.md](./frontend-design.md) | 前端契约 | 修改前端架构、路由、布局、状态管理、页面接入 |
+{{FRONTEND_TESTING_PLAN_ROW}}
 
 ## 默认阅读顺序
 
 1. 改前端结构或页面接入：先读 `frontend-design.md`
 2. 再回到对应 phase 文档，看该功能的范围与完成定义
+{{FRONTEND_TESTING_PLAN_ORDER}}

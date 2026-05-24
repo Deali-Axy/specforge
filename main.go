@@ -198,6 +198,35 @@ func joinNonEmptyLines(lines ...string) string {
 	return strings.Join(parts, "\n")
 }
 
+// toKebabTag 将自由文本归一化为适合 frontmatter tags 的 kebab-case 值。
+func toKebabTag(text, fallback string) string {
+	text = strings.TrimSpace(strings.ToLower(text))
+	if text == "" {
+		return fallback
+	}
+
+	var builder strings.Builder
+	lastDash := false
+	for _, r := range text {
+		switch {
+		case (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9'):
+			builder.WriteRune(r)
+			lastDash = false
+		case r == ' ' || r == '-' || r == '_' || r == '/' || r == '.':
+			if !lastDash && builder.Len() > 0 {
+				builder.WriteByte('-')
+				lastDash = true
+			}
+		}
+	}
+
+	result := strings.Trim(builder.String(), "-")
+	if result == "" {
+		return fallback
+	}
+	return result
+}
+
 // ── 主流程 ────────────────────────────────────────────────────────────────────
 
 func main() {
@@ -337,10 +366,38 @@ func main() {
 		"PHASE_TITLE":        phase1Desc,
 		"PHASE_DESCRIPTION":  phase1Desc,
 		"PHASE_GOAL":         phase1Desc,
+		"PREREQS":            "[]",
+		"TAG_1":              phase1Keyword,
 		"SCOPE":              scopeVal,
+		"FRONTEND_FRAMEWORK_TAG": toKebabTag(frontend, "frontend"),
+		"MONOREPO_TOOL_TAG":     "workspace",
+		"CHANGE_PLAN_1":         "（暂无，创建新计划时补充）",
+		"CHANGE_PLAN_1_STATUS":  "—",
+		"CHANGE_PLAN_1_DESC":    "当出现非主线但值得追踪的局部优化时，在 changes/active/ 中新增。",
+		"ADR_1":                 "[ADR 0001 · 文档分层规则](./adr/adr-0001-docs-layering.md)",
+		"ADR_1_STATUS":          "✅ 生效中",
+		"ADR_1_DESC":            "规定 docs 采用顶层入口 + phase / changes / adr / research + 关注域子目录的分层结构。",
+		"FRONTEND_TESTING_PLAN_ROW": func() string {
+			if !(includeFrontend && includeTesting) {
+				return ""
+			}
+			return "| [frontend-testing-plan.md](./frontend-testing-plan.md) | 前端测试计划 | 设计页面级集成测试、组件测试或 E2E 测试时阅读 |"
+		}(),
+		"FRONTEND_TESTING_PLAN_ORDER": func() string {
+			if !(includeFrontend && includeTesting) {
+				return ""
+			}
+			return "3. 需要补前端测试：再读 `frontend-testing-plan.md`"
+		}(),
 		"TECH_DETAIL_DOCS": joinNonEmptyLines(
 			"- [前端文档索引](./frontend/README.md)",
 			"- [工程文档索引](./engineering/README.md)",
+			func() string {
+				if !(includeFrontend && includeTesting) {
+					return ""
+				}
+				return "- [前端测试计划](./frontend/frontend-testing-plan.md)"
+			}(),
 			func() string {
 				if !includeApi {
 					return ""
@@ -369,6 +426,8 @@ func main() {
 
 	// 核心模板（必须）
 	coreTemplates := []templateEntry{
+		{"docs/root-README.md.tpl", "README.md"},
+		{"docs/CLAUDE.md.tpl", "CLAUDE.md"},
 		{"docs/CONVENTIONS.md.tpl", "docs/CONVENTIONS.md"},
 		{"docs/README.md.tpl", "docs/README.md"},
 		{"docs/documentation-design.md.tpl", "docs/documentation-design.md"},
@@ -376,6 +435,7 @@ func main() {
 		{"docs/tech-design.md.tpl", "docs/tech-design.md"},
 		{"docs/changes/README.md.tpl", "docs/changes/README.md"},
 		{"docs/adr/README.md.tpl", "docs/adr/README.md"},
+		{"docs/adr/adr-0001-docs-layering.md.tpl", "docs/adr/adr-0001-docs-layering.md"},
 	}
 
 	for _, t := range coreTemplates {
@@ -409,6 +469,12 @@ func main() {
 		if err := generateTemplate("docs/frontend/frontend-design.md.tpl", filepath.Join(*outputDir, "docs/frontend/frontend-design.md"), replacements); err != nil {
 			fmt.Println(color("错误: "+err.Error(), red))
 			os.Exit(1)
+		}
+		if includeTesting {
+			if err := generateTemplate("docs/frontend/frontend-testing-plan.md.tpl", filepath.Join(*outputDir, "docs/frontend/frontend-testing-plan.md"), replacements); err != nil {
+				fmt.Println(color("错误: "+err.Error(), red))
+				os.Exit(1)
+			}
 		}
 	}
 	if includeApi {
@@ -457,6 +523,8 @@ func main() {
 	fmt.Printf("  技术栈：%s\n", color(techStackSummary, white))
 	fmt.Println()
 	fmt.Println(color("  生成的文档：", white))
+	fmt.Println(color("    README.md                   (仓库入口说明)", gray))
+	fmt.Println(color("    CLAUDE.md                  (AI 开发导航)", gray))
 	fmt.Println(color("    docs/README.md              (导航索引)", gray))
 	fmt.Println(color("    docs/CONVENTIONS.md         (文档规范)", gray))
 	fmt.Println(color("    docs/documentation-design.md (文档体系设计)", gray))
@@ -464,10 +532,14 @@ func main() {
 	fmt.Println(color("    docs/tech-design.md         (技术架构)", gray))
 	fmt.Println(color("    docs/changes/README.md      (变更计划索引)", gray))
 	fmt.Println(color("    docs/adr/README.md          (架构决策索引)", gray))
+	fmt.Println(color("    docs/adr/adr-0001-docs-layering.md (示例 ADR)", gray))
 	fmt.Println(color("    docs/frontend/README.md     (前端文档索引)", gray))
 	fmt.Println(color("    docs/engineering/README.md  (工程文档索引)", gray))
 	if includeFrontend {
 		fmt.Println(color("    docs/frontend/frontend-design.md (前端规范)", gray))
+		if includeTesting {
+			fmt.Println(color("    docs/frontend/frontend-testing-plan.md (前端测试计划)", gray))
+		}
 	}
 	if includeApi {
 		fmt.Println(color("    docs/engineering/api-contract-design.md (API 合约)", gray))

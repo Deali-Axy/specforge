@@ -33,9 +33,12 @@ task build-all      # 交叉编译所有平台
 specforge
 ```
 
-交互式填写项目信息和技术栈，工具会自动生成分层后的 `docs/` 目录结构：
+交互式填写项目信息和技术栈，工具会自动生成项目根入口文件 + 分层后的 `docs/` 目录结构：
 
 ```
+README.md                         ← 仓库入口说明
+CLAUDE.md                        ← AI / 团队开发导航
+
 docs/
 ├── README.md                     ← 顶层导航索引
 ├── CONVENTIONS.md                ← 文档规范
@@ -44,7 +47,8 @@ docs/
 ├── tech-design.md                ← 技术架构
 ├── frontend/
 │   ├── README.md                 ← 前端文档索引
-│   └── frontend-design.md        ← 前端规范（可选）
+│   ├── frontend-design.md        ← 前端规范（可选）
+│   └── frontend-testing-plan.md  ← 前端测试计划（前端 + 测试时生成）
 ├── engineering/
 │   ├── README.md                 ← 工程文档索引
 │   ├── api-contract-design.md    ← API 合约（可选）
@@ -57,7 +61,8 @@ docs/
 │   ├── active/
 │   └── completed/
 ├── adr/
-│   └── README.md                 ← ADR 索引
+│   ├── README.md                 ← ADR 索引
+│   └── adr-0001-docs-layering.md ← 示例 ADR
 └── research/
   └── ai-engineering-practice-guide.md  ← AI 工程方法论（可选）
 ```
@@ -102,13 +107,16 @@ Phase 1 简述: 骨架搭建
 
 | 文件 | 说明 |
 |------|------|
+| `README.md` | 仓库入口说明，提供最短阅读路径与启动建议 |
+| `CLAUDE.md` | AI / 团队开发导航，约束根入口职责与文档查找顺序 |
 | `CONVENTIONS.md` | 文档命名规则与 YAML frontmatter 规范 |
-| `README.md` | 文档导航索引，AI 和团队的入口 |
+| `docs/README.md` | 文档导航索引，AI 和团队的入口 |
 | `documentation-design.md` | docs 分层原则、目录职责与收纳规则 |
 | `product-design.md` | 产品设计：问题→定位→能力→领域模型→原则 |
 | `tech-design.md` | 技术架构：选型→模块职责→架构边界 |
 | `changes/README.md` | Change Plans 的使用规则与索引入口 |
 | `adr/README.md` | ADR 的职责、命名方式与索引入口 |
+| `adr/adr-0001-docs-layering.md` | 文档分层规则的示例 ADR |
 | `frontend/README.md` | 前端关注域入口 |
 | `engineering/README.md` | 工程关注域入口 |
 
@@ -117,6 +125,7 @@ Phase 1 简述: 骨架搭建
 | 文件 | 说明 | 何时需要 |
 |------|------|----------|
 | `frontend/frontend-design.md` | 前端开发契约 | 有前端应用时 |
+| `frontend/frontend-testing-plan.md` | 前端测试计划 | 同时有前端和测试规范时 |
 | `engineering/api-contract-design.md` | API 合约设计 | 有前后端分离 API 时 |
 | `engineering/monorepo-config.md` | Monorepo 配置指南 | 使用 monorepo 时 |
 | `engineering/testing.md` | 测试策略 | 需要测试规范时 |
@@ -131,6 +140,7 @@ Phase 1 简述: 骨架搭建
 ## 文档体系设计思路
 
 ```
+README.md / CLAUDE.md      ← 根入口：项目概览 + AI 导航
 docs/
 ├── README.md              ← 入口：导航索引 + 阅读顺序
 ├── CONVENTIONS.md         ← 规范：文档治理规则
@@ -142,9 +152,9 @@ docs/
 ├── phase/                 ← 执行：每个阶段要做什么
 │   └── phase1-xxx.md
 ├── changes/               ← 局部变更计划
-├── adr/                   ← 长期架构决策
+├── adr/                   ← 长期架构决策 + 示例 ADR
 └── research/              ← 方法论：怎么用 AI 辅助开发
-    └── ai-engineering-practice-guide.md
+  └── ai-engineering-practice-guide.md
 ```
 
 模板中使用 `{{PLACEHOLDER}}` 格式的占位符，工具会自动替换主要占位符。次要占位符（如 `{{PAIN_POINT_1}}`）需要手动填写。
